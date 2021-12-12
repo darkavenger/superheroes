@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:superheroes/resources/superhoroes_colors.dart';
 import 'package:superheroes/widgets/action_button.dart';
 
-class SuperHeroPage extends StatelessWidget {
+class SuperheroPage extends StatelessWidget {
   final String name;
 
-  const SuperHeroPage({Key? key, required this.name}) : super(key: key);
+  const SuperheroPage({Key? key, required this.name}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

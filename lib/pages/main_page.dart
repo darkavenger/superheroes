@@ -170,7 +170,7 @@ class Favorites extends StatelessWidget {
             imageUrl: SuperheroesImages.batmanUrl,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => SuperHeroPage(
+                builder: (context) => SuperheroPage(
                   name: "Batman",
                 ),
               ),
@@ -188,7 +188,7 @@ class Favorites extends StatelessWidget {
             imageUrl: SuperheroesImages.ironmanUrl,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => SuperHeroPage(
+                builder: (context) => SuperheroPage(
                   name: "Ironman",
                 ),
               ),
@@ -232,7 +232,7 @@ class SearchResults extends StatelessWidget {
             imageUrl: SuperheroesImages.batmanUrl,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => SuperHeroPage(
+                builder: (context) => SuperheroPage(
                   name: "Batman",
                 ),
               ),
@@ -250,7 +250,7 @@ class SearchResults extends StatelessWidget {
             imageUrl: SuperheroesImages.venomUrl,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => SuperHeroPage(
+                builder: (context) => SuperheroPage(
                   name: "Venom",
                 ),
               ),
