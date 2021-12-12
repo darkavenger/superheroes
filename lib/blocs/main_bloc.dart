@@ -29,6 +29,6 @@ enum MainPageState {
   loading,
   nothingFound,
   loadingError,
-  searchResult,
+  searchResults,
   favorites,
 }

@@ -86,7 +86,7 @@ class MainPageStateWidget extends StatelessWidget {
                 imageTopPadding: 9);
           case MainPageState.favorites:
             return Favorites();
-          case MainPageState.searchResult:
+          case MainPageState.searchResults:
             return SearchResults();
           case MainPageState.nothingFound:
             return InfoWithButton(
