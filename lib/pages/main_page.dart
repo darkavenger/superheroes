@@ -14,10 +14,10 @@ import 'package:superheroes/widgets/info_with_button.dart';
 import 'package:superheroes/widgets/superhero_card.dart';
 
 class MainPage extends StatefulWidget {
-  final http.Client? clinet;
+  final http.Client? client;
   const MainPage({
     Key? key,
-    this.clinet,
+    this.client,
   }) : super(key: key);
 
   @override
@@ -30,7 +30,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    bloc = MainBloc(client: widget.clinet);
+    bloc = MainBloc(client: widget.client);
   }
 
   @override

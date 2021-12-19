@@ -1,7 +1,9 @@
 class ApiException implements Exception {
   final String message;
 
-  ApiException(this.message);
+  ApiException(this.message) {
+    print(message);
+  }
 
   static ApiException get(final int statusCode) {
     if (statusCode >= 400 && statusCode <= 499 || statusCode == 200) {
@@ -11,4 +13,7 @@ class ApiException implements Exception {
     }
     return ApiException("Unknow error happened");
   }
+
+  @override
+  String toString() => 'ApiException(message: $message)';
 }

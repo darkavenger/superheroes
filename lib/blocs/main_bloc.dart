@@ -91,7 +91,7 @@ class MainBloc {
     final token = dotenv.env["SUPERHERO_TOKEN"];
     final response = await (client ??= http.Client())
         .get(Uri.parse("https://superheroapi.com/api/$token/search/$text"));
-    // .get(Uri.parse("https://postman-echo.com/stat/500"));
+    // .get(Uri.parse("https://postman-echo.com/stat/459"));
 
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
@@ -114,12 +114,14 @@ class MainBloc {
       }
     }
     final ApiException exception = ApiException.get(response.statusCode);
-    throw Exception(exception.message);
+    throw Exception(exception);
   }
 
   void retry() {
     if (hasSearchError) {
-      searchForSuperheroes(currentTextSubject.value);
+      final String currentValue = currentTextSubject.value;
+      currentTextSubject.add("");
+      currentTextSubject.add(currentValue);
     }
   }
 
