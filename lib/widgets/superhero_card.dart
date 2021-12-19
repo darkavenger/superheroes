@@ -1,5 +1,9 @@
+// ignore_for_file: prefer_const_constructors
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:superheroes/blocs/main_bloc.dart';
+import 'package:superheroes/resources/superheroes_images.dart';
 import 'package:superheroes/resources/superhoroes_colors.dart';
 
 class SuperheroCard extends StatelessWidget {
@@ -23,11 +27,42 @@ class SuperheroCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(8)),
         child: Row(
           children: [
-            Image.network(
-              superheroInfo.imageUrl,
-              height: 70,
+            Container(
               width: 70,
-              fit: BoxFit.cover,
+              height: 70,
+              color: Colors.white24,
+              child: CachedNetworkImage(
+                imageUrl: superheroInfo.imageUrl,
+                height: 70,
+                width: 70,
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) {
+                  return Center(
+                    child: Image.asset(
+                      SuperheroesImages.unknown,
+                      width: 20,
+                      height: 62,
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                },
+                progressIndicatorBuilder: (context, url, progress) {
+                  return Center(
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: progress.progress == null
+                          ? CircularProgressIndicator(
+                              color: SuperheroesColors.blue,
+                            )
+                          : CircularProgressIndicator(
+                              value: progress.progress,
+                              color: SuperheroesColors.blue,
+                            ),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(
               width: 12,

@@ -5,6 +5,7 @@ import 'package:superheroes/widgets/action_button.dart';
 class InfoWithButton extends StatelessWidget {
   final String title, subtitle, buttonText, assetImage;
   final double imageHeight, imageWidth, imageTopPadding;
+  final VoidCallback onTap;
   const InfoWithButton(
       {Key? key,
       required this.title,
@@ -13,7 +14,8 @@ class InfoWithButton extends StatelessWidget {
       required this.assetImage,
       required this.imageHeight,
       required this.imageWidth,
-      required this.imageTopPadding})
+      required this.imageTopPadding,
+      required this.onTap})
       : super(key: key);
 
   @override
@@ -63,7 +65,7 @@ class InfoWithButton extends StatelessWidget {
               fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 30),
-        ActionButton(onTap: () {}, text: buttonText)
+        ActionButton(onTap: onTap, text: buttonText)
       ],
     ));
   }

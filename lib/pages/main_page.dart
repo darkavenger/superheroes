@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 import 'package:superheroes/blocs/main_bloc.dart';
@@ -13,14 +14,24 @@ import 'package:superheroes/widgets/info_with_button.dart';
 import 'package:superheroes/widgets/superhero_card.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+  final http.Client? clinet;
+  const MainPage({
+    Key? key,
+    this.clinet,
+  }) : super(key: key);
 
   @override
   State<MainPage> createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-  final MainBloc bloc = MainBloc();
+  late MainBloc bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    bloc = MainBloc(client: widget.clinet);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +56,6 @@ class _MainPageState extends State<MainPage> {
 class MainPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
     return Stack(
       children: [
         MainPageStateWidget(),
@@ -72,16 +82,18 @@ class _SearchWidgetState extends State<SearchWidget> {
     super.initState();
     SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
       final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
-      controller.addListener(() => bloc.updateText(controller.text));
+      controller.addListener(() {
+        bloc.updateText(controller.text);
+        setState(() {});
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
     return TextField(
-      onChanged: (value) {
-        setState(() {});
-      },
+      focusNode: bloc.searchFocusNode,
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.search,
       cursorColor: SuperheroesColors.white,
@@ -93,10 +105,7 @@ class _SearchWidgetState extends State<SearchWidget> {
       ),
       decoration: InputDecoration(
         suffix: GestureDetector(
-          onTap: () {
-            controller.clear();
-            setState(() {});
-          },
+          onTap: () => controller.clear(),
           child: Icon(
             Icons.clear,
             color: SuperheroesColors.white,
@@ -183,6 +192,7 @@ class MainPageStateWidget extends StatelessWidget {
               imageHeight: 119,
               imageWidth: 108,
               imageTopPadding: 9,
+              onTap: () => bloc.searchFocusNode.requestFocus(),
             );
           case MainPageState.favorites:
             return SuperheroesList(
@@ -194,13 +204,15 @@ class MainPageStateWidget extends StatelessWidget {
                 stream: bloc.obsereSearchedSuperheroes());
           case MainPageState.nothingFound:
             return InfoWithButton(
-                title: "Nothing found",
-                subtitle: "Search for something else",
-                buttonText: "Search",
-                assetImage: SuperheroesImages.hulk,
-                imageHeight: 112,
-                imageWidth: 84,
-                imageTopPadding: 16);
+              title: "Nothing found",
+              subtitle: "Search for something else",
+              buttonText: "Search",
+              assetImage: SuperheroesImages.hulk,
+              imageHeight: 112,
+              imageWidth: 84,
+              imageTopPadding: 16,
+              onTap: () => bloc.searchFocusNode.requestFocus(),
+            );
           case MainPageState.loadingError:
             return InfoWithButton(
                 title: "Error happened",
@@ -209,7 +221,8 @@ class MainPageStateWidget extends StatelessWidget {
                 assetImage: SuperheroesImages.superman,
                 imageHeight: 106,
                 imageWidth: 126,
-                imageTopPadding: 22);
+                imageTopPadding: 22,
+                onTap: () => bloc.retry());
           default:
             return Center(
                 child: Text(

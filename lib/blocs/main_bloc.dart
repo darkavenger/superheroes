@@ -1,8 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 
 // import 'package:rxdart/subjects.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:superheroes/exception/api_exception.dart';
+import 'package:superheroes/model/superhero.dart';
 import 'package:superheroes/resources/superheroes_images.dart';
+import "package:http/http.dart" as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MainBloc {
   static const minSymbols = 3;
@@ -12,13 +18,17 @@ class MainBloc {
   final favoriteSuperheroesSubject =
       BehaviorSubject<List<SuperheroInfo>>.seeded(SuperheroInfo.mocked);
   final currentTextSubject = BehaviorSubject<String>.seeded("");
+  final FocusNode searchFocusNode = FocusNode();
 
+  bool hasSearchError = false;
   StreamSubscription? textSubscription;
   StreamSubscription? searchSubscription;
 
+  http.Client? client;
+
   Stream<MainPageState> observeMainPageState() => stateSubject;
 
-  MainBloc() {
+  MainBloc({this.client}) {
     stateSubject.add(MainPageState.noFavorites);
 
     textSubscription =
@@ -57,6 +67,7 @@ class MainBloc {
   }
 
   void searchForSuperheroes(final String text) {
+    hasSearchError = false;
     stateSubject.add(MainPageState.loading);
     searchSubscription = search(text).asStream().listen((searchReults) {
       if (searchReults.isEmpty) {
@@ -67,6 +78,7 @@ class MainBloc {
       }
     }, onError: (error, stackTrace) {
       stateSubject.add(MainPageState.loadingError);
+      hasSearchError = true;
     });
   }
 
@@ -76,12 +88,39 @@ class MainBloc {
       searchedSuperheroesSubject;
 
   Future<List<SuperheroInfo>> search(final String text) async {
-    await Future.delayed(const Duration(seconds: 1));
+    final token = dotenv.env["SUPERHERO_TOKEN"];
+    final response = await (client ??= http.Client())
+        .get(Uri.parse("https://superheroapi.com/api/$token/search/$text"));
+    // .get(Uri.parse("https://postman-echo.com/stat/500"));
 
-    return SuperheroInfo.mocked
-        .where((element) =>
-            element.name.toLowerCase().contains(text.toLowerCase()))
-        .toList();
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded['response'] == 'success') {
+        final List<dynamic> results = decoded['results'];
+        final List<Superhero> superheroes =
+            results.map((e) => Superhero.fromJson(e)).toList();
+        final List<SuperheroInfo> found = superheroes.map((superhero) {
+          return SuperheroInfo(
+            name: superhero.name,
+            realName: superhero.biography.fullName,
+            imageUrl: superhero.image.url,
+          );
+        }).toList();
+        return found;
+      } else if (decoded['response'] == 'error') {
+        if (decoded['error'] == 'character with given name not found') {
+          return [];
+        }
+      }
+    }
+    final ApiException exception = ApiException.get(response.statusCode);
+    throw Exception(exception.message);
+  }
+
+  void retry() {
+    if (hasSearchError) {
+      searchForSuperheroes(currentTextSubject.value);
+    }
   }
 
   void nextState() {
@@ -101,8 +140,8 @@ class MainBloc {
     favoriteSuperheroesSubject.close();
     searchedSuperheroesSubject.close();
     currentTextSubject.close();
-
     textSubscription?.cancel();
+    client?.close();
   }
 }
 
