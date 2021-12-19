@@ -114,7 +114,7 @@ class MainBloc {
       }
     }
     final ApiException exception = ApiException.get(response.statusCode);
-    throw Exception(exception);
+    throw exception;
   }
 
   void retry() {
