@@ -28,10 +28,12 @@ class FavoriteSuperheroesStorage {
 
   Future<bool> updateFavorites(final Superhero superhero) async {
     final superheroes = await _getSuperheroes();
-    superheroes.firstWhere((element) => element.id == superhero.id);
-    superheroes[superheroes.indexOf(
-            superheroes.firstWhere((element) => element.id == superhero.id))] =
-        superhero;
+    final index =
+        superheroes.indexWhere((element) => element.id == superhero.id);
+    if (index == -1) {
+      return false;
+    }
+    superheroes[index] = superhero;
     return _setSuperheroes(superheroes);
   }
 
@@ -62,11 +64,6 @@ class FavoriteSuperheroesStorage {
 
   Future<Superhero?> getSuperhero(final String id) async {
     final superheroes = await _getSuperheroes();
-    // for (final superhero in superheroes) {
-    //   if (superhero.id == id) {
-    //     return superhero;
-    //   }
-    // }
     for (final superhero in superheroes) {
       if (superhero.id == id) {
         return superhero;

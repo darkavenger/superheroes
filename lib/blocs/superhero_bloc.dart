@@ -60,8 +60,11 @@ class SuperheroBloc {
     } else if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
       if (decoded['response'] == 'success') {
+        final superhero = Superhero.fromJson(decoded);
+        await FavoriteSuperheroesStorage.getIntsance()
+            .updateFavorites(superhero);
         updateState(SuperheroPageState.loaded);
-        return Superhero.fromJson(decoded);
+        return superhero;
       } else if (decoded['response'] == 'error') {
         updateState(SuperheroPageState.error);
         throw ApiException("Client error happened");
@@ -84,8 +87,6 @@ class SuperheroBloc {
         updateState(SuperheroPageState.loading);
       }
       requestSuperhero();
-      updateFavorites();
-      // print("Added to favorites $superhero");
     }, onError: (error, stackTrace) {
       print("Error happened in addToFavorites $error, $stackTrace");
     });
@@ -128,20 +129,6 @@ class SuperheroBloc {
         .listen((event) {
       // print("Removed from favorites $event");
     }, onError: (error, stackTrace) {
-      print("Error happened in removeFromFavorites $error, $stackTrace");
-    });
-  }
-
-  void updateFavorites() {
-    final superhero = superheroSubject.valueOrNull;
-    if (superhero == null) {
-      return;
-    }
-    removeFromFavoriteSubscription?.cancel();
-    removeFromFavoriteSubscription = FavoriteSuperheroesStorage.getIntsance()
-        .updateFavorites(superhero)
-        .asStream()
-        .listen((event) {}, onError: (error, stackTrace) {
       print("Error happened in removeFromFavorites $error, $stackTrace");
     });
   }
